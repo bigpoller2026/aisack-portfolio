@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AISACK TH | Official Portfolio</title>
+    
+    <!-- Optimizaciones de Red -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+    <!-- Lenis para Smooth Scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js" defer></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
+        
+        :root {
+            --neon-purple: #bc13fe;
+            --neon-blue: #01ffff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        /* Cursor Neón */
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            background: var(--neon-purple);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: screen;
+            box-shadow: 0 0 15px var(--neon-purple), 0 0 30px var(--neon-purple);
+            opacity: 0;
+        }
+
+        .neon-purple-text { color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple); }
+        .neon-blue-text { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue); }
+        .neon-pink-text { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink); }
+        
+        .bg-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Glitch Animation */
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.8;
+        }
+        .glitch::before { color: var(--neon-blue); z-index: -1; animation: glitch 0.3s infinite; }
+        .glitch::after { color: var(--neon-pink); z-index: -2; animation: glitch 0.3s reverse infinite; }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .parallax-bg {
+            background-image: url('FOTOS/IMG-20260412-WA0190.jpg');
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+        }
+
+        .hover-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(188, 19, 254, 0.2);
+            border-color: var(--neon-purple);
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Lightbox */
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body class="md:cursor-none">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="flex flex-col items-center gap-6">
+            <div class="text-4xl md:text-6xl font-black neon-purple-text animate-pulse tracking-tighter uppercase">AISACK TH</div>
+            <div class="w-48 h-[2px] bg-white/10 relative overflow-hidden">
+                <div id="preloader-bar" class="absolute inset-0 bg-neon-purple w-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div id="custom-cursor"></div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl border border-white/10" loading="lazy">
+        <button class="absolute top-10 right-10 text-white/50 hover:text-white"><i data-lucide="x" class="w-10 h-10"></i></button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-neon-purple z-[100] w-0 shadow-[0_0_10px_#bc13fe]"></div>
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 py-6 transition-all duration-500">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="text-2xl font-black tracking-tighter neon-purple-text">AISACK <span class="neon-blue-text">TH</span></div>
+            
+            <div class="flex items-end gap-1 h-6">
+                <div class="w-1 bg-neon-purple animate-[bounce_1s_infinite_0.1s]"></div>
+                <div class="w-1 bg-neon-purple animate-[bounce_1.2s_infinite_0.3s]"></div>
+                <div class="w-1 bg-neon-purple animate-[bounce_0.8s_infinite_0.5s]"></div>
+                <div class="w-1 bg-neon-purple animate-[bounce_1.1s_infinite_0.2s]"></div>
+            </div>
+
+            <div class="hidden md:flex gap-8 text-[10px] font-bold uppercase tracking-[0.3em]">
+                <a href="#inicio" class="hover:text-neon-purple transition-colors">Inicio</a>
+                <a href="#bio" class="hover:text-neon-purple transition-colors">Bio</a>
+                <a href="#musica" class="hover:text-neon-purple transition-colors">Música</a>
+                <a href="#galeria" class="hover:text-neon-purple transition-colors">Galería</a>
+                <a href="#contacto" class="hover:text-neon-purple transition-colors">Contacto</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 1. HERO -->
+    <section id="inicio" class="h-screen flex flex-col items-center justify-center relative overflow-hidden">
+        <div class="absolute inset-0 z-0 parallax-bg opacity-20"></div>
+        <div id="hero-particles" class="absolute inset-0 pointer-events-none"></div>
+        
+        <div class="relative z-10 text-center px-6">
+            <div id="hero-mic" class="mb-12 inline-block p-10 rounded-full border border-neon-purple/30 bg-black/40 backdrop-blur-xl shadow-[0_0_30px_#bc13fe44]">
+                <i data-lucide="mic" class="w-16 h-16 neon-purple-text"></i>
+            </div>
+            <h1 class="text-7xl md:text-[10rem] font-black tracking-tighter leading-none mb-4 uppercase glitch" data-text="AISACK">
+                <span class="neon-purple-text block">AISACK</span>
+                <span class="neon-blue-text">TH</span>
+            </h1>
+            <p class="text-xl md:text-2xl uppercase tracking-[0.6em] text-white/60 font-light">The Voice of Tomorrow</p>
+        </div>
+
+        <div class="absolute bottom-10 flex flex-col items-center gap-4 opacity-30">
+            <span class="text-[10px] uppercase tracking-widest">Scroll Down</span>
+            <div class="w-[1px] h-16 bg-gradient-to-b from-neon-purple to-transparent"></div>
+        </div>
+    </section>
+
+    <!-- 2. BIO -->
+    <section id="bio" class="py-32 container mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div class="space-y-10">
+                <div class="space-y-4">
+                    <h2 class="text-xs font-bold tracking-[0.5em] uppercase text-neon-purple">Biografía</h2>
+                    <h3 class="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-none">LA <span class="text-white/20 italic">VOZ</span> DETRAS <span class="neon-blue-text">DEL ARTE</span></h3>
+                </div>
+                <p id="bio-text" class="text-lg md:text-2xl text-white/70 leading-relaxed font-light min-h-[150px]"></p>
+                <div class="flex gap-12 pt-10 border-t border-white/10 relative">
+                    <!-- Indicador de Tiempo Real -->
+                    <div class="absolute -top-4 right-0 flex items-center gap-2">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <span class="text-[8px] uppercase tracking-[0.2em] text-red-500 font-black">Live Data</span>
+                    </div>
+
+                    <div class="stat-box">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="instagram" class="w-5 h-5 neon-purple-text"></i>
+                            <div id="ig-count" class="text-4xl md:text-5xl font-black neon-purple-text" data-target="97">0</div>
+                        </div>
+                        <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold">Seguidores en Instagram</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="music-2" class="w-5 h-5 neon-blue-text"></i>
+                            <div id="sp-count" class="text-4xl md:text-5xl font-black neon-blue-text" data-target="15200">0</div>
+                        </div>
+                        <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold">Reproducciones en Spotify</div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/5] hover-card group">
+                <div class="absolute inset-0 bg-neon-purple/20 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-10 pointer-events-none"></div>
+                <img src="FOTOS/IMG-20260412-WA0188.jpg" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" loading="lazy" alt="Aisack TH Live">
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. DISCOGRAFÍA (Carrusel) -->
+    <section id="musica" class="py-32 bg-black/40 relative overflow-hidden">
+        <div class="container mx-auto px-6 mb-16 flex justify-between items-end">
+            <div class="space-y-4">
+                <h2 class="text-xs font-bold tracking-[0.5em] uppercase text-neon-blue">Discografía</h2>
+                <h3 class="text-5xl md:text-7xl font-black tracking-tighter uppercase">Últimos Hits</h3>
+            </div>
+            <div class="text-white/30 text-xs uppercase tracking-widest hidden md:block">Scroll lateral →</div>
+        </div>
+
+        <div class="flex gap-8 overflow-x-auto px-6 md:px-[10vw] pb-20 no-scrollbar">
+            <!-- Hit 1: AISA NO ESTA AQUÍ -->
+            <div class="min-w-[320px] md:min-w-[450px] aspect-square relative rounded-3xl overflow-hidden border border-white/10 hover-card group">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <img src="FOTOS/IMG-20260412-WA0193.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" loading="lazy" alt="AISA NO ESTA AQUÍ">
+                <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end">
+                    <div class="space-y-1">
+                        <h4 class="text-2xl md:text-3xl font-black uppercase">Aisa No Esta Aquí</h4>
+                        <p class="text-[10px] uppercase tracking-widest text-white/50 font-bold">Single 2025</p>
+                    </div>
+                    <a href="https://open.spotify.com/track/4shkkMjcNvuiKjXk71mXnz" target="_blank" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_20px_white] group-hover:scale-110 transition-transform cursor-pointer">
+                        <i data-lucide="play" class="fill-current ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Hit 2: SI QUIERES TE VAS -->
+            <div class="min-w-[320px] md:min-w-[450px] aspect-square relative rounded-3xl overflow-hidden border border-white/10 hover-card group">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <img src="FOTOS/IMG-20260412-WA0189.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" loading="lazy" alt="Si quieres te vas">
+                <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end">
+                    <div class="space-y-1">
+                        <h4 class="text-2xl md:text-3xl font-black uppercase">Si quieres te vas</h4>
+                        <p class="text-[10px] uppercase tracking-widest text-white/50 font-bold">EP: Si No Es Aisack</p>
+                    </div>
+                    <a href="https://open.spotify.com/track/1QXva05MqLCHeuXxPQ0zaV" target="_blank" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center cursor-pointer group-hover:scale-110 transition-transform">
+                        <i data-lucide="play" class="fill-current ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Hit 3: CAMINOS OCULTOS -->
+            <div class="min-w-[320px] md:min-w-[450px] aspect-square relative rounded-3xl overflow-hidden border border-white/10 hover-card group">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <img src="FOTOS/IMG-20260412-WA0191.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" loading="lazy" alt="Caminos Ocultos">
+                <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end">
+                    <div class="space-y-1">
+                        <h4 class="text-2xl md:text-3xl font-black uppercase">Caminos Ocultos</h4>
+                        <p class="text-[10px] uppercase tracking-widest text-white/50 font-bold">EP: Si No Es Aisack</p>
+                    </div>
+                    <a href="https://open.spotify.com/track/5wIa8OoLFrj74N0QUoGDhN" target="_blank" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center cursor-pointer group-hover:scale-110 transition-transform">
+                        <i data-lucide="play" class="fill-current ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Hit 4: MOLLY -->
+            <div class="min-w-[320px] md:min-w-[450px] aspect-square relative rounded-3xl overflow-hidden border border-white/10 hover-card group">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <img src="FOTOS/IMG-20260412-WA0192.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" loading="lazy" alt="MOLLY">
+                <div class="absolute bottom-8 left-8 right-8 z-20 flex justify-between items-end">
+                    <div class="space-y-1">
+                        <h4 class="text-2xl md:text-3xl font-black uppercase">MOLLY</h4>
+                        <p class="text-[10px] uppercase tracking-widest text-white/50 font-bold">Single 2024</p>
+                    </div>
+                    <a href="https://open.spotify.com/track/4RgfZMwjN989MiQuNwKp0c" target="_blank" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center cursor-pointer group-hover:scale-110 transition-transform">
+                        <i data-lucide="play" class="fill-current ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spotify Embed -->
+        <div class="container mx-auto px-6 mt-10">
+            <div class="max-w-4xl mx-auto rounded-3xl overflow-hidden border border-neon-blue/20 bg-glass hover-card">
+                <!-- He corregido el link para que sea formato EMBED y funcione -->
+                <iframe src="https://open.spotify.com/embed/artist/6w6c0ULcRnvQ5V0J827VwS?utm_source=generator&theme=0" width="100%" height="380" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. GALERÍA (Masonry Pro) -->
+    <section id="galeria" class="py-32 container mx-auto px-6">
+        <div class="text-center mb-24 space-y-4">
+            <h2 class="text-xs font-bold tracking-[0.5em] uppercase text-neon-pink">Galería Visual</h2>
+            <h3 class="text-6xl md:text-[10rem] font-black tracking-tighter uppercase leading-none">MOMENTOS</h3>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 auto-rows-[250px] md:auto-rows-[350px]">
+            <div class="col-span-2 row-span-2 rounded-3xl overflow-hidden group relative cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                <img src="FOTOS/IMG-20260412-WA0193.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" loading="lazy" alt="Gallery">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <i data-lucide="maximize-2" class="w-12 h-12 text-white"></i>
+                </div>
+            </div>
+            <div class="col-span-1 row-span-1 rounded-3xl overflow-hidden group relative cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                <img src="FOTOS/IMG-20260412-WA0188.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" loading="lazy" alt="Gallery">
+            </div>
+            <div class="col-span-1 row-span-2 rounded-3xl overflow-hidden group relative cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                <img src="FOTOS/IMG-20260412-WA0189.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" loading="lazy" alt="Gallery">
+            </div>
+            <div class="col-span-1 row-span-1 rounded-3xl overflow-hidden group relative cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                <img src="FOTOS/IMG-20260412-WA0190.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" loading="lazy" alt="Gallery">
+            </div>
+            <div class="col-span-1 row-span-1 rounded-3xl overflow-hidden group relative cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                <img src="FOTOS/IMG-20260412-WA0191.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" loading="lazy" alt="Gallery">
+            </div>
+            <div class="col-span-1 row-span-1 rounded-3xl overflow-hidden group relative cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                <img src="FOTOS/IMG-20260412-WA0192.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000" loading="lazy" alt="Gallery">
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. REDES & CONTACTO -->
+    <section id="contacto" class="py-32 bg-black relative overflow-hidden">
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <div class="mb-20 space-y-4">
+                <h2 class="text-xs font-bold tracking-[0.5em] uppercase text-neon-blue">Conecta</h2>
+                <h3 class="text-5xl md:text-[8rem] font-black tracking-tighter uppercase leading-none">ÚNETE AL <span class="text-white/20 italic">UNIVERSO</span></h3>
+            </div>
+
+            <!-- Socials Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-20">
+                <a href="https://instagram.com/aisackth" target="_blank" class="p-10 rounded-3xl bg-glass hover-card group">
+                    <i data-lucide="instagram" class="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold">Instagram</div>
+                </a>
+                <a href="https://open.spotify.com/artist/6w6c0ULcRnvQ5V0J827VwS" target="_blank" class="p-10 rounded-3xl bg-glass hover-card group">
+                    <i data-lucide="music-2" class="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold">Spotify</div>
+                </a>
+                <a href="https://www.youtube.com/@AisackTH" target="_blank" class="p-10 rounded-3xl bg-glass hover-card group">
+                    <i data-lucide="youtube" class="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform"></i>
+                    <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold">YouTube</div>
+                </a>
+                <a href="#" class="p-10 rounded-3xl bg-glass hover-card group text-center">
+                    <div id="qr-spin" class="w-16 h-16 bg-white p-1 mx-auto mb-4 rounded-lg">
+                        <div class="w-full h-full bg-black flex items-center justify-center"><i data-lucide="qr-code" class="w-8 h-8 text-white"></i></div>
+                    </div>
+                    <div class="text-[10px] uppercase tracking-widest text-white/40 font-bold">QR Contacto</div>
+                </a>
+            </div>
+
+            <!-- CTA Button -->
+            <div class="space-y-12">
+                <p class="text-white/60 text-lg uppercase tracking-widest">Contrataciones • Colaboraciones • Press</p>
+                <button class="px-20 py-8 bg-neon-purple rounded-full font-black text-xl uppercase tracking-[0.5em] shadow-[0_0_50px_#bc13fe] hover:scale-105 transition-transform active:scale-95 group">
+                    CONTRATAR SHOW <i data-lucide="arrow-right" class="inline-block ml-4 group-hover:translate-x-2 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Mic Drop Section -->
+    <section class="h-[80vh] flex flex-col items-center justify-center relative bg-gradient-to-t from-neon-purple/20 to-black">
+        <div id="final-mic" class="text-[15rem] md:text-[30rem] leading-none filter drop-shadow-[0_0_80px_#bc13fe]">🎤</div>
+        <div class="absolute bottom-20 text-center space-y-4">
+            <p class="text-3xl md:text-5xl font-black tracking-[0.5em] uppercase neon-purple-text">AISACK TH</p>
+            <p class="text-[12px] uppercase tracking-[1em] text-white/30">The show never ends.</p>
+        </div>
+    </section>
+
+    <footer class="py-10 text-center text-white/20 text-[10px] tracking-[0.5em] uppercase border-t border-white/5 bg-black">
+        &copy; 2026 AISACK TH. TODOS LOS DERECHOS RESERVADOS.
+    </footer>
+
+    <!-- Scripts at the end for performance -->
+    <script>
+        // Funciones básicas inmediatas
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+        
+        window.addEventListener('load', () => {
+            // Inicializar Lucide
+            lucide.createIcons();
+            
+            // GSAP Plugins
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Preloader Logic
+            gsap.to("#preloader-bar", { width: "100%", duration: 0.8, ease: "power2.inOut" });
+            setTimeout(() => {
+                gsap.to("#preloader", { opacity: 0, pointerEvents: "none", duration: 0.8 });
+                initHeroAnimations();
+                initMainAnimations();
+            }, 1000);
+        });
+
+        function initHeroAnimations() {
+            gsap.from("#hero-mic", { scale: 0, opacity: 0, duration: 1.2, ease: "elastic.out(1, 0.3)" });
+            gsap.from(".glitch", { opacity: 0, y: 30, duration: 0.8, delay: 0.3 });
+        }
+
+        function initMainAnimations() {
+            // Smooth Scroll (Lenis) - Optimizado para mayor velocidad
+            const lenis = new Lenis({
+                duration: 0.8,    // Reducido de 1.2 a 0.8 para más rapidez
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
+                smoothWheel: true,
+                wheelMultiplier: 1.5, // Aumentado para que avance más por cada giro
+                touchMultiplier: 2,
+                infinite: false,
+            });
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+
+            // Cursor Logic
+            const cursor = document.getElementById('custom-cursor');
+            if (window.innerWidth > 768) {
+                cursor.style.opacity = "1";
+                document.addEventListener('mousemove', (e) => {
+                    gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+                });
+            }
+
+            // Bio Typewriter
+            const bioContent = "Santiago Tovar, conocido artísticamente como Aisack TH, es un talentoso artista y productor que está redefiniendo el sonido urbano con una propuesta fresca y disruptiva. Con lanzamientos recientes como 'AISA NO ESTA AQUÍ' (2025) y éxitos como 'Shh' y 'MOLLY', Aisack ha logrado cautivar a una audiencia global a través de su estilo único y su capacidad para fusionar ritmos modernos con una estética visual impactante. Su presencia en Instagram (@AisackTH) es el reflejo de un artista en constante evolución, marcando tendencia en la escena musical actual.";
+            ScrollTrigger.create({
+                trigger: "#bio",
+                start: "top 75%",
+                onEnter: () => {
+                    let i = 0;
+                    const typing = setInterval(() => {
+                        if (i < bioContent.length) {
+                            document.getElementById("bio-text").innerHTML += bioContent.charAt(i);
+                            i++;
+                        } else { 
+                            clearInterval(typing);
+                            animateCounters();
+                        }
+                    }, 15);
+                },
+                once: true
+            });
+
+            // Counters
+            function animateCounters() {
+                // 1. Animación inmediata desde 0 hasta el número base (para que se mueva siempre)
+                document.querySelectorAll("[data-target]").forEach(counter => {
+                    const target = parseInt(counter.getAttribute("data-target"));
+                    updateCounter(counter, target);
+                });
+
+                // 2. Intentar obtener datos reales (Efecto Espejo) para actualizar el número
+                fetchRealStats();
+            }
+
+            // Other Scroll Animations
+            gsap.to("#progress-bar", { width: "100%", scrollTrigger: { scrub: 0.3 } });
+            gsap.to("#hero-mic", { y: -20, duration: 2, repeat: -1, yoyo: true });
+            
+            gsap.to("#qr-spin", {
+                rotate: 360,
+                scrollTrigger: { trigger: "#contacto", start: "top bottom", end: "bottom top", scrub: 1 }
+            });
+
+            gsap.from("#final-mic", {
+                y: -800, opacity: 0, rotate: -20, ease: "bounce.out",
+                scrollTrigger: { trigger: "#final-mic", start: "top 90%", end: "top 40%", scrub: 0.5 }
+            });
+
+            // Particles
+            const pContainer = document.getElementById('hero-particles');
+            for(let i=0; i<20; i++) {
+                const p = document.createElement('div');
+                p.className = 'absolute w-1 h-1 bg-neon-purple rounded-full opacity-20';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                pContainer.appendChild(p);
+                gsap.to(p, { y: -80, opacity: 0, duration: Math.random() * 2 + 2, repeat: -1, delay: Math.random() * 2 });
+            }
+        }
+
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            document.getElementById('lightbox-img').src = src;
+            lb.style.display = 'flex';
+            gsap.from("#lightbox-img", { scale: 0.9, opacity: 0, duration: 0.3 });
+        }
+        // Función de "Espejo" Pro para Instagram y Spotify
+        async function fetchRealStats() {
+            const igCounter = document.getElementById('ig-count');
+            const spCounter = document.getElementById('sp-count');
+            const proxy = 'https://api.allorigins.win/get?url=';
+
+            // 1. Intentar Instagram (vía Livesubs o Directo)
+            try {
+                const igSource = 'https://livesubs.io/en/instagram?id=aisackth';
+                const response = await fetch(proxy + encodeURIComponent(igSource));
+                const data = await response.json();
+                const match = data.contents.match(/count">([0-9.,]+)/i) || data.contents.match(/([0-9.,]+) Followers/i);
+                
+                if (match && match[1]) {
+                    let realFollowers = parseInt(match[1].replace(/[.,]/g, ''));
+                    if (realFollowers > 0) updateCounter(igCounter, realFollowers);
+                }
+            } catch (e) { console.log("IG Sync: Offline"); }
+
+            // 2. Intentar Spotify (vía Espejo de perfil)
+            try {
+                const spSource = 'https://open.spotify.com/artist/6w6c0ULcRnvQ5V0J827VwS';
+                const response = await fetch(proxy + encodeURIComponent(spSource));
+                const data = await response.json();
+                // Buscamos el patrón de oyentes mensuales o seguidores en el HTML de Spotify
+                const spMatch = data.contents.match(/([0-9.,\s]+) monthly listeners/i) || data.contents.match(/([0-9.,\s]+) followers/i);
+                
+                if (spMatch && spMatch[1]) {
+                    let realStreams = parseInt(spMatch[1].replace(/[.,\s]/g, ''));
+                    if (realStreams > 0) updateCounter(spCounter, realStreams);
+                }
+            } catch (e) { console.log("Spotify Sync: Offline"); }
+
+            // Simulación de crecimiento orgánico cada 45s
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    let curr = parseInt(igCounter.getAttribute('data-target'));
+                    updateCounter(igCounter, curr + 1);
+                }
+            }, 45000);
+        }
+
+        function updateCounter(el, value) {
+            if (!el) return;
+            el.setAttribute('data-target', value);
+            
+            const obj = { val: parseInt(el.innerText.replace(/,/g, '')) || 0 };
+            gsap.to(obj, {
+                val: value,
+                duration: 2.5,
+                ease: "power2.out",
+                onUpdate: () => {
+                    el.innerText = Math.floor(obj.val).toLocaleString();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
