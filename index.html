@@ -470,14 +470,11 @@
 
             // Counters
             function animateCounters() {
-                // 1. Animación inmediata desde 0 hasta el número base (para que se mueva siempre)
+                // Animación inmediata desde 0 hasta el número base (sin proxy para evitar errores)
                 document.querySelectorAll("[data-target]").forEach(counter => {
                     const target = parseInt(counter.getAttribute("data-target"));
                     updateCounter(counter, target);
                 });
-
-                // 2. Intentar obtener datos reales (Efecto Espejo) para actualizar el número
-                fetchRealStats();
             }
 
             // Other Scroll Animations
@@ -511,47 +508,6 @@
             document.getElementById('lightbox-img').src = src;
             lb.style.display = 'flex';
             gsap.from("#lightbox-img", { scale: 0.9, opacity: 0, duration: 0.3 });
-        }
-        // Función de "Espejo" Pro para Instagram y Spotify
-        async function fetchRealStats() {
-            const igCounter = document.getElementById('ig-count');
-            const spCounter = document.getElementById('sp-count');
-            const proxy = 'https://api.allorigins.win/get?url=';
-
-            // 1. Intentar Instagram (vía Livesubs o Directo)
-            try {
-                const igSource = 'https://livesubs.io/en/instagram?id=aisackth';
-                const response = await fetch(proxy + encodeURIComponent(igSource));
-                const data = await response.json();
-                const match = data.contents.match(/count">([0-9.,]+)/i) || data.contents.match(/([0-9.,]+) Followers/i);
-                
-                if (match && match[1]) {
-                    let realFollowers = parseInt(match[1].replace(/[.,]/g, ''));
-                    if (realFollowers > 0) updateCounter(igCounter, realFollowers);
-                }
-            } catch (e) { console.log("IG Sync: Offline"); }
-
-            // 2. Intentar Spotify (vía Espejo de perfil)
-            try {
-                const spSource = 'https://open.spotify.com/artist/6w6c0ULcRnvQ5V0J827VwS';
-                const response = await fetch(proxy + encodeURIComponent(spSource));
-                const data = await response.json();
-                // Buscamos el patrón de oyentes mensuales o seguidores en el HTML de Spotify
-                const spMatch = data.contents.match(/([0-9.,\s]+) monthly listeners/i) || data.contents.match(/([0-9.,\s]+) followers/i);
-                
-                if (spMatch && spMatch[1]) {
-                    let realStreams = parseInt(spMatch[1].replace(/[.,\s]/g, ''));
-                    if (realStreams > 0) updateCounter(spCounter, realStreams);
-                }
-            } catch (e) { console.log("Spotify Sync: Offline"); }
-
-            // Simulación de crecimiento orgánico cada 45s
-            setInterval(() => {
-                if (Math.random() > 0.7) {
-                    let curr = parseInt(igCounter.getAttribute('data-target'));
-                    updateCounter(igCounter, curr + 1);
-                }
-            }, 45000);
         }
 
         function updateCounter(el, value) {
